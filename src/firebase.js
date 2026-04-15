@@ -1,55 +1,72 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  updateDoc, 
+  arrayUnion, 
+  arrayRemove 
+} from "firebase/firestore";
 
+// PASTE YOUR ACTUAL STRINGS FROM FIREBASE CONSOLE HERE
 const firebaseConfig = {
-  apiKey: "AIzaSyAGVxkDKV0or4gMCXYrOcRLoj_rEk3h0AM",
-  authDomain: "lume-ai-d15a6.firebaseapp.com",
-  projectId: "lume-ai-d15a6",
-  storageBucket: "lume-ai-d15a6.firebasestorage.app",
-  messagingSenderId: "656218266322",
-  appId: "1:656218266322:web:381989504e03030fd52b0b",
-  measurementId: "G-NCB4QJ2YWZ"
+  apiKey: "AIzaSy...", 
+  authDomain: "lume-view.firebaseapp.com",
+  projectId: "lume-view",
+  storageBucket: "lume-view.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abc123"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
+// Google Sign-In Logic
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
     return result.user;
   } catch (error) {
-    console.error("Login Error:", error.message);
+    console.error("Auth Error:", error.code, error.message);
   }
 };
 
-export const logoutUser = () => signOut(auth);
-
-// --- LUME PERSISTENCE LOGIC ---
-
-export const toggleStarCoin = async (userId, coinId, isStarred) => {
+// Fetch User Preferences (Watchlist)
+export const getUserPreferences = async (uid) => {
   try {
-    const userRef = doc(db, "users", userId);
-    await setDoc(userRef, {
-      starredCoins: isStarred ? arrayRemove(coinId) : arrayUnion(coinId),
-      lastViewed: coinId 
-    }, { merge: true });
+    const userDoc = await getDoc(doc(db, "users", uid));
+    if (userDoc.exists()) {
+      return userDoc.data();
+    } else {
+      const initialData = { starredCoins: [] };
+      await setDoc(doc(db, "users", uid), initialData);
+      return initialData;
+    }
+  } catch (error) {
+    console.error("Error fetching preferences:", error);
+    return { starredCoins: [] };
+  }
+};
+
+// Toggle Star/Watchlist Logic
+export const toggleStarCoin = async (uid, coinId, isStarred) => {
+  const userRef = doc(db, "users", uid);
+  try {
+    if (isStarred) {
+      await updateDoc(userRef, {
+        starredCoins: arrayRemove(coinId)
+      });
+    } else {
+      await updateDoc(userRef, {
+        starredCoins: arrayUnion(coinId)
+      });
+    }
   } catch (error) {
     console.error("Firestore Update Error:", error);
-  }
-};
-
-export const getUserPreferences = async (userId) => {
-  try {
-    const userRef = doc(db, "users", userId);
-    const docSnap = await getDoc(userRef);
-    return docSnap.exists() ? docSnap.data() : { starredCoins: [], lastViewed: null };
-  } catch (error) {
-    // Gracefully handle the "Offline" error you saw in the console
-    console.warn("LUME is currently in offline mode:", error.message);
-    return { starredCoins: [], lastViewed: null };
   }
 };
