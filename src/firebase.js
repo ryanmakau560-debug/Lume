@@ -1,15 +1,23 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  updateDoc, 
+  arrayUnion, 
+  arrayRemove 
+} from "firebase/firestore";
 
-// These match your Lume AI project exactly
 const firebaseConfig = {
-  apiKey: "YOUR_ACTUAL_API_KEY", 
+  apiKey: "AIzaSyAGVxkDKV0or4gMCXYrOcRLoj_rEk3h0AM",
   authDomain: "lume-ai-d15a6.firebaseapp.com",
   projectId: "lume-ai-d15a6",
-  storageBucket: "lume-ai-d15a6.appspot.com",
+  storageBucket: "lume-ai-d15a6.firebasestorage.app",
   messagingSenderId: "656218266322",
-  appId: "YOUR_ACTUAL_APP_ID"
+  appId: "1:656218266322:web:381989504e03030fd52b0b",
+  measurementId: "G-NCB4QJ2YWZ"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -17,22 +25,19 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-// Standard Popup (Yesterday's version)
-export const signInWithGoogle = async () => {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    return result.user;
-  } catch (error) {
-    console.error("Auth Error:", error.code);
-    return null;
-  }
-};
+// Stable Popup Sign-in
+export const signInWithGoogle = () => signInWithPopup(auth, provider);
 
 export const getUserPreferences = async (uid) => {
   try {
     const userDoc = await getDoc(doc(db, "users", uid));
-    return userDoc.exists() ? userDoc.data() : { starredCoins: [] };
-  } catch (e) { return { starredCoins: [] }; }
+    if (userDoc.exists()) return userDoc.data();
+    const initial = { starredCoins: [] };
+    await setDoc(doc(db, "users", uid), initial);
+    return initial;
+  } catch (e) {
+    return { starredCoins: [] };
+  }
 };
 
 export const toggleStarCoin = async (uid, coinId, isStarred) => {
@@ -43,5 +48,7 @@ export const toggleStarCoin = async (uid, coinId, isStarred) => {
     } else {
       await updateDoc(userRef, { starredCoins: arrayUnion(coinId) });
     }
-  } catch (e) { console.error(e); }
+  } catch (e) {
+    console.error("Watchlist Update Error:", e);
+  }
 };
