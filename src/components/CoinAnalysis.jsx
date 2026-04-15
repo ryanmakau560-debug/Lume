@@ -7,7 +7,6 @@ const CoinAnalysis = () => {
   const [coinData, setCoinData] = useState(null);
   const [history, setHistory] = useState([]);
 
-  // Utility function to abbreviate large numbers (e.g., 1.5B instead of 1,500,000,000)
   const formatCompact = (number) => {
     if (number === null || number === undefined) return 'N/A';
     return new Intl.NumberFormat('en-US', {
@@ -25,95 +24,101 @@ const CoinAnalysis = () => {
       .then(res => res.json())
       .then(data => {
         const formatted = data.prices.map(p => ({ 
-          date: new Date(p[0]).toLocaleDateString(), 
+          date: new Date(p[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), 
           price: p[1] 
         }));
         setHistory(formatted);
       });
   }, [id]);
 
-  if (!coinData) return <div className="p-20 text-center animate-pulse text-slate-500 font-mono text-xs uppercase tracking-widest">Calibrating Analysis...</div>;
+  if (!coinData) return <div className="h-screen flex items-center justify-center text-slate-500 font-mono text-[10px] uppercase tracking-[1em]">Establishing Connection...</div>;
 
   const mData = coinData.market_data;
 
   return (
-    <div className="max-w-7xl mx-auto p-6 animate-in fade-in duration-700">
-      <Link to="/" className="text-slate-500 hover:text-white mb-8 inline-block text-sm transition-colors uppercase tracking-widest font-bold">← Back to Market</Link>
+    <div className="w-full px-8 py-6 animate-in fade-in duration-500">
+      <Link to="/" className="text-slate-500 hover:text-white mb-6 inline-block text-[9px] font-black uppercase tracking-[0.4em]">← BACK TO MARKET</Link>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* LEFT SIDE: CHART */}
-        <div className="lg:col-span-2 bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl">
-          <div className="flex items-center gap-4 mb-8">
-            <img src={coinData.image.small} className="w-12 h-12" alt="" />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full items-start">
+        
+        {/* CHART PANEL */}
+        <div className="lg:col-span-8 bg-white/5 border border-white/10 p-6 rounded-[2rem] backdrop-blur-xl">
+          <div className="flex items-center gap-4 mb-4">
+            <img src={coinData.image.small} className="w-10 h-10" alt="" />
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-3xl font-black uppercase tracking-tighter">{coinData.name}</h1>
-                <span className="bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-xs font-bold uppercase">{coinData.symbol}</span>
-                <span className="bg-slate-700 text-white px-2 py-0.5 rounded text-xs font-bold">#{coinData.market_cap_rank}</span>
+                <h1 className="text-2xl font-black uppercase tracking-tighter">{coinData.name}</h1>
+                <span className="bg-slate-800 text-slate-500 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter">{coinData.symbol}</span>
               </div>
-              <p className="text-blue-500 font-mono text-4xl font-bold mt-2">
+              <p className="text-blue-500 font-mono text-3xl font-bold tracking-tighter mt-1">
                 ${mData.current_price.usd.toLocaleString()}
               </p>
             </div>
           </div>
 
-          <div className="h-[400px] w-full mt-10">
+          {/* Reduced height to keep it on one screen without scrolling */}
+          <div className="h-[320px] w-full pr-4">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={history}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                <XAxis dataKey="date" hide />
-                <YAxis hide domain={['auto', 'auto']} />
-                <Tooltip 
-                  contentStyle={{backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px'}}
+                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} opacity={0.2} />
+                <XAxis 
+                  dataKey="date" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{fill: '#64748b', fontSize: 9, fontWeight: 'bold'}}
+                  dy={10}
                 />
-                <Line type="monotone" dataKey="price" stroke="#3b82f6" strokeWidth={3} dot={false} />
+                <YAxis 
+                  orientation="right"
+                  domain={['auto', 'auto']} 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{fill: '#64748b', fontSize: 9, fontWeight: 'bold'}}
+                  tickFormatter={(value) => `$${formatCompact(value)}`}
+                />
+                <Tooltip 
+                  contentStyle={{backgroundColor: '#020617', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px'}}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="price" 
+                  stroke="#3b82f6" 
+                  strokeWidth={3} 
+                  dot={{ r: 3, fill: '#3b82f6', strokeWidth: 0 }} 
+                  activeDot={{ r: 5, strokeWidth: 0 }}
+                  strokeLinecap="round" 
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* RIGHT SIDE: ABBREVIATED ANALYSIS */}
-        <div className="space-y-4">
-          
+        {/* SIDEBAR STATS */}
+        <div className="lg:col-span-4 space-y-4">
           <div className="bg-white/5 border border-white/10 p-5 rounded-2xl">
-            <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Market Cap</p>
-            <p className="text-xl font-bold">${formatCompact(mData.market_cap.usd)}</p>
-            <p className={`text-xs mt-1 ${mData.market_cap_change_percentage_24h > 0 ? 'text-green-400' : 'text-red-400'}`}>
-              {mData.market_cap_change_percentage_24h?.toFixed(2)}%
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white/5 border border-white/10 p-5 rounded-2xl">
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Volume (24h)</p>
-              <p className="text-lg font-bold font-mono text-blue-400">${formatCompact(mData.total_volume.usd)}</p>
-            </div>
-            <div className="bg-white/5 border border-white/10 p-5 rounded-2xl">
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Vol / Mkt Cap</p>
-              <p className="text-lg font-bold font-mono">{(mData.total_volume.usd / mData.market_cap.usd).toFixed(4)}%</p>
-            </div>
+            <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest mb-1">Market Cap</p>
+            <p className="text-2xl font-bold">${formatCompact(mData.market_cap.usd)}</p>
           </div>
 
           <div className="bg-white/5 border border-white/10 p-5 rounded-2xl">
-            <div className="flex justify-between border-b border-white/5 pb-3 mb-3">
-              <span className="text-slate-500 text-xs font-bold uppercase">Circulating Supply</span>
-              <span className="font-bold text-sm font-mono">{formatCompact(mData.circulating_supply)} {coinData.symbol.toUpperCase()}</span>
-            </div>
-            <div className="flex justify-between border-b border-white/5 pb-3 mb-3">
-              <span className="text-slate-500 text-xs font-bold uppercase">Max Supply</span>
-              <span className="font-bold text-sm font-mono">{mData.max_supply ? formatCompact(mData.max_supply) : '∞'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500 text-xs font-bold uppercase">Total Supply</span>
-              <span className="font-bold text-sm font-mono">{formatCompact(mData.total_supply)}</span>
-            </div>
+            <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest mb-1">Volume (24h)</p>
+            <p className="text-2xl font-bold text-blue-400 font-mono">${formatCompact(mData.total_volume.usd)}</p>
           </div>
 
-          <div className="bg-white/5 border border-white/10 p-5 rounded-2xl">
-            <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Fully Diluted Valuation (FDV)</p>
-            <p className="text-xl font-bold font-mono">${formatCompact(mData.fully_diluted_valuation.usd)}</p>
+          <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-3">
+            <div className="flex justify-between items-center">
+                <span className="text-slate-500 text-[9px] font-black uppercase tracking-widest">Circulating</span>
+                <span className="font-bold font-mono text-xs">{formatCompact(mData.circulating_supply)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+                <span className="text-slate-500 text-[9px] font-black uppercase tracking-widest">Max Supply</span>
+                <span className="font-bold font-mono text-xs">{mData.max_supply ? formatCompact(mData.max_supply) : '∞'}</span>
+            </div>
+            <div className="flex justify-between items-center border-t border-white/5 pt-3">
+                <span className="text-slate-500 text-[9px] font-black uppercase tracking-widest">FDV Valuation</span>
+                <span className="font-bold font-mono text-xs">${formatCompact(mData.fully_diluted_valuation.usd)}</span>
+            </div>
           </div>
-
         </div>
       </div>
     </div>
