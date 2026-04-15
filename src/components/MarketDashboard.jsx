@@ -3,65 +3,49 @@ import { Link } from 'react-router-dom';
 
 const MarketDashboard = ({ user, prefs, onStar }) => {
   const [coins, setCoins] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCoins = async () => {
-      const proxyUrl = "https://corsproxy.io/?";
-      const apiUrl = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false";
-
+    const fetchMarket = async () => {
       try {
-        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl));
-        if (!response.ok) throw new Error("API Limit Reached");
-        const data = await response.json();
+        // We use the 'allorigins' proxy to stop the "Connecting" hang
+        const api = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false";
+        const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(api)}`);
+        const data = await res.json();
         setCoins(data);
+        setLoading(false);
       } catch (err) {
-        console.error("LUME Data Fetch Error:", err);
+        console.error("LUME Fetch Error:", err);
       }
     };
-    fetchCoins();
+    fetchMarket();
   }, []);
 
-  return (
-    <div className="w-full px-4 md:px-10 py-6">
-      <div className="text-center mb-10">
-        <h2 className="text-4xl font-black tracking-tight uppercase">Market Overview</h2>
-        <p className="text-blue-500 text-xs font-mono mt-2 uppercase tracking-widest">Live Updates • API Active</p>
-      </div>
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh]">
+      <h1 className="text-6xl font-white uppercase italic tracking-tighter mb-2">Market Overview</h1>
+      <p className="text-blue-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-20">Live Updates • API Active</p>
+      <p className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.5em] animate-pulse">Connecting to Data Stream...</p>
+    </div>
+  );
 
-      <div className="w-full space-y-4">
-        {coins.length > 0 ? (
-          coins.map(coin => {
-            const isStarred = prefs.starredCoins?.includes(coin.id);
-            return (
-              <div key={coin.id} className="flex items-center justify-between p-6 bg-white/5 border border-white/10 rounded-2xl hover:border-blue-500/50 transition-all backdrop-blur-sm w-full">
-                <div className="flex items-center gap-6">
-                  <button 
-                    onClick={() => onStar(coin.id)}
-                    className={`text-2xl transition ${isStarred ? 'text-yellow-400' : 'text-slate-600 hover:text-slate-400'}`}
-                  >
-                    {isStarred ? '★' : '☆'}
-                  </button>
-                  <img src={coin.image} alt={coin.name} className="w-12 h-12 rounded-full" />
-                  <Link to={`/coin/${coin.id}`} className="hover:text-blue-400 transition">
-                    <p className="text-xs text-slate-500 font-black uppercase tracking-tighter">{coin.symbol}</p>
-                    <p className="font-bold text-lg">{coin.name}</p>
-                  </Link>
-                </div>
-                
-                <div className="text-right">
-                  <p className="font-mono font-bold text-2xl">${coin.current_price.toLocaleString()}</p>
-                  <p className={`text-sm font-bold ${coin.price_change_percentage_24h > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {coin.price_change_percentage_24h.toFixed(2)}%
-                  </p>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="text-center p-40 text-slate-500 font-mono text-sm animate-pulse tracking-[0.5em]">
-            CONNECTING TO DATA STREAM...
+  return (
+    <div className="p-10 w-full">
+      <div className="flex flex-col items-center mb-16">
+        <h1 className="text-6xl font-white uppercase italic tracking-tighter mb-2">Market Overview</h1>
+        <p className="text-blue-500 text-[10px] font-bold uppercase tracking-[0.3em]">Live Updates • API Active</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+        {coins.map(coin => (
+          <div key={coin.id} className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-sm">
+            <div className="flex justify-between items-center mb-6">
+               <img src={coin.image} className="w-10 h-10" alt="" />
+               <button onClick={() => onStar(coin.id)} className="text-2xl text-slate-800">★</button>
+            </div>
+            <div className="text-3xl font-white italic tracking-tighter">${coin.current_price.toLocaleString()}</div>
+            <Link to={`/coin/${coin.id}`} className="block mt-6 text-center text-[10px] font-black uppercase py-3 bg-white/5 rounded-xl border border-white/5">View Analytics</Link>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );
