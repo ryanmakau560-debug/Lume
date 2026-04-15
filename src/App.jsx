@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { auth, signInWithGoogle, toggleStarCoin, getUserPreferences } from './firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, getRedirectResult } from 'firebase/auth';
 
 import MarketDashboard from './components/MarketDashboard';
 import CoinAnalysis from './components/CoinAnalysis';
@@ -9,14 +9,21 @@ import CoinAnalysis from './components/CoinAnalysis';
 function App() {
   const [user, setUser] = useState(null);
   const [prefs, setPrefs] = useState({ starredCoins: [] });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // This catches the user after they redirect back from Google
+    getRedirectResult(auth).catch((error) => console.error("Redirect Error:", error));
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         const userPrefs = await getUserPreferences(currentUser.uid);
         setPrefs(userPrefs || { starredCoins: [] });
+      } else {
+        setPrefs({ starredCoins: [] });
       }
+      setLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -29,6 +36,12 @@ function App() {
     setPrefs(updatedPrefs);
   };
 
+  if (loading) return (
+    <div className="bg-slate-950 min-h-screen flex items-center justify-center font-mono text-[10px] uppercase tracking-widest text-slate-500">
+      Initializing Lume Engine...
+    </div>
+  );
+
   return (
     <Router>
       <div className="fixed inset-0 bg-slate-950 text-white font-sans overflow-y-auto overflow-x-hidden flex flex-col">
@@ -37,14 +50,25 @@ function App() {
             LUME <span className="text-blue-500">| VIEW</span>
           </Link>
           <div className="flex items-center gap-6">
-            <Link to="/about" className="text-[10px] text-slate-400 hover:text-white transition uppercase font-black tracking-widest">About</Link>
             {user ? (
               <div className="flex items-center gap-4">
-                <span className="text-xs font-medium text-slate-400">Welcome, {user.displayName.split(' ')[0]}</span>
-                <button onClick={() => auth.signOut()} className="bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-red-500/20">LOGOUT</button>
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                  Welcome, {user.displayName?.split(' ')[0]}
+                </span>
+                <button 
+                  onClick={() => auth.signOut()} 
+                  className="bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-red-500/20 uppercase"
+                >
+                  Logout
+                </button>
               </div>
             ) : (
-              <button onClick={signInWithGoogle} className="bg-white text-black px-5 py-1.5 rounded-full text-xs font-bold">Sign In</button>
+              <button 
+                onClick={signInWithGoogle} 
+                className="bg-white text-black px-5 py-1.5 rounded-full text-xs font-bold uppercase"
+              >
+                Sign In
+              </button>
             )}
           </div>
         </nav>
