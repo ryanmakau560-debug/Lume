@@ -79,6 +79,29 @@ const MarketDashboard = ({ user, prefs, onStar }) => {
           {error ? `OFFLINE: ${error}` : 'Live Updates • API Active'}
         </p>
       </div>
+
+      {/* --- LUME AI FEATURE START --- */}
+      <div className="max-w-7xl mx-auto mb-12">
+        <div className="bg-gradient-to-br from-blue-600/10 to-transparent border border-blue-500/20 p-8 rounded-3xl backdrop-blur-md">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-ping" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400">LUME AI • Initializing Analysis</span>
+          </div>
+          
+          <h2 className="text-2xl text-white font-black italic uppercase tracking-tighter mb-4">Market Sentiment: <span className="text-blue-500">BULLISH</span></h2>
+          
+          <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-3xl">
+            LUME AI has detected high-volume accumulation in top-tier assets. Current volatility index suggests a potential breakout in the next 24 hours. Watch for support levels at the 50-day moving average.
+          </p>
+
+          <div className="mt-6 flex gap-4">
+             <button className="bg-blue-600/20 border border-blue-500/30 text-blue-400 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-600/40 transition-all">
+               Generate Deep Report
+             </button>
+          </div>
+        </div>
+      </div>
+      {/* --- LUME AI FEATURE END --- */}
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-7xl mx-auto">
         {Array.isArray(coins) && coins.length > 0 ? (
