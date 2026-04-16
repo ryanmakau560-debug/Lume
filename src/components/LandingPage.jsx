@@ -1,15 +1,10 @@
-import React from 'react';
-import { signInWithGoogle } from '../firebase';
-
-const LandingPage = () => {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] px-6 text-center">
-      {/* Decorative Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-64 h-64 bg-blue-600/10 blur-[120px] rounded-full -z-10" />
-
-      <div className="max-w-3xl space-y-6">
-        <h2 className="text-blue-500 text-[10px] font-black uppercase tracking-[0.5em] animate-fade-in">
-          Next-Gen Crypto Terminal
+const LandingPage = () => (
+  <div className="flex flex-col items-center justify-between min-h-[80vh] px-6 text-center">
+    {/* Main Content Container - centered using flex-grow */}
+    <div className="flex-grow flex flex-col items-center justify-center">
+      <div className="max-w-4xl space-y-8 animate-in fade-in zoom-in duration-700">
+        <h2 className="text-blue-500 text-[10px] font-black uppercase tracking-[0.5em] animate-pulse">
+          Market Intelligence Platform
         </h2>
         
         <h1 className="text-7xl md:text-8xl font-[1000] italic tracking-tighter uppercase leading-[0.85]">
@@ -22,37 +17,34 @@ const LandingPage = () => {
           Real-time analytics, personalized watchlists, and zero noise.
         </p>
 
-        <div className="pt-10 flex flex-col md:flex-row items-center justify-center gap-4">
+        <div className="pt-10 flex flex-col items-center justify-center gap-4">
           <button 
             onClick={signInWithGoogle}
             className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-full font-black uppercase tracking-widest text-xs transition-all hover:scale-105 shadow-lg shadow-blue-500/20"
           >
             Launch Terminal
           </button>
-          
-          <button className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-10 py-4 rounded-full font-black uppercase tracking-widest text-xs transition-all">
-            Documentation
-          </button>
-        </div>
-      </div>
-
-      {/* Subtle bottom detail */}
-      <div className="mt-24 grid grid-cols-3 gap-12 border-t border-white/5 pt-12">
-        <div className="text-center">
-          <p className="text-xl font-black italic tracking-tighter">50+</p>
-          <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Live Assets</p>
-        </div>
-        <div className="text-center">
-          <p className="text-xl font-black italic tracking-tighter">REAL-TIME</p>
-          <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Data Feed</p>
-        </div>
-        <div className="text-center">
-          <p className="text-xl font-black italic tracking-tighter">0.0s</p>
-          <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Latency</p>
         </div>
       </div>
     </div>
-  );
-};
 
-export default LandingPage;
+    {/* Professional Footer */}
+    <footer className="w-full max-w-6xl py-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 mt-20">
+      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">
+        © 2026 LUME VIEW <span className="mx-2 text-white/10">|</span> ALL RIGHTS RESERVED
+      </div>
+      
+      <div className="flex items-center gap-8">
+        <Link 
+          to="/about" 
+          className="text-[10px] font-black text-slate-400 hover:text-blue-500 transition-colors uppercase tracking-widest"
+        >
+          About Platform
+        </Link>
+        <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest cursor-not-allowed">
+          System Status: Online
+        </div>
+      </div>
+    </footer>
+  </div>
+);

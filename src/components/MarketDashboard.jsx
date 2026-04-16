@@ -108,7 +108,13 @@ const MarketDashboard = ({ user, prefs, onStar }) => {
           coins.map(coin => (
             <div key={coin.id} className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-sm hover:border-blue-500/30 transition-all group">
               <div className="flex justify-between items-center mb-6">
-                 <img src={coin.image} className="w-10 h-10 grayscale group-hover:grayscale-0 transition-all" alt="" />
+                 {/* ADDED NAME NEXT TO ICON */}
+                 <div className="flex items-center gap-3">
+                   <img src={coin.image} className="w-10 h-10 grayscale group-hover:grayscale-0 transition-all" alt="" />
+                   <span className="text-white font-black italic uppercase tracking-tighter text-lg leading-tight">
+                     {coin.name}
+                   </span>
+                 </div>
                  <button onClick={() => onStar(coin.id)} className={`text-2xl transition-colors ${prefs?.starredCoins?.includes(coin.id) ? 'text-blue-500' : 'text-slate-800'}`}>★</button>
               </div>
               <div className="text-3xl text-white italic tracking-tighter">

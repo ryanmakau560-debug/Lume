@@ -24,8 +24,10 @@ export const signInWithGoogle = () => signInWithPopup(auth, provider);
 export const getUserPreferences = async (uid) => {
   try {
     const userDoc = await getDoc(doc(db, "users", uid));
+    // If doc exists, return it; otherwise return the default structure
     return userDoc.exists() ? userDoc.data() : { starredCoins: [] };
   } catch (e) {
+    console.error("Error fetching prefs:", e);
     return { starredCoins: [] };
   }
 };
@@ -33,10 +35,16 @@ export const getUserPreferences = async (uid) => {
 export const toggleStarCoin = async (uid, coinId, isStarred) => {
   const userRef = doc(db, "users", uid);
   try {
-    await updateDoc(userRef, {
+    // FIX: Changed updateDoc to setDoc with merge: true
+    // This creates the user document if it doesn't exist yet
+    await setDoc(userRef, {
       starredCoins: isStarred ? arrayRemove(coinId) : arrayUnion(coinId)
-    });
+    }, { merge: true });
+    
+    console.log(`Successfully ${isStarred ? 'removed' : 'added'} ${coinId}`);
   } catch (e) {
     console.error("Watchlist Error:", e);
+    // Alerting here helps you debug if your Firestore Rules are blocking the write
+    alert("Sync Error: Make sure your Firestore Rules allow writes.");
   }
 };

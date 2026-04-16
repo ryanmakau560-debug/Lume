@@ -5,11 +5,15 @@ import { onAuthStateChanged } from 'firebase/auth';
 
 import MarketDashboard from './components/MarketDashboard';
 import CoinAnalysis from './components/CoinAnalysis';
+import About from './components/About'; 
+import Favorites from './components/Favorites';
+import Contact from './components/Contact'; 
+import LumeAi from './components/LumeAi'; // Added AI component import
 
-// LANDING PAGE COMPONENT (Kept here for safety)
+// LANDING PAGE COMPONENT
 const LandingPage = () => (
-  <div className="flex flex-col items-center justify-center min-h-[80vh] px-6 text-center">
-    <div className="max-w-4xl space-y-8 animate-in fade-in zoom-in duration-700">
+  <div className="flex flex-col items-center justify-between min-h-[85vh] px-6 text-center">
+    <div className="max-w-4xl space-y-8 animate-in fade-in zoom-in duration-700 flex-grow flex flex-col justify-center">
       <h2 className="text-blue-500 text-[10px] font-black uppercase tracking-[0.5em] animate-pulse">
         Market Intelligence Platform
       </h2>
@@ -24,7 +28,7 @@ const LandingPage = () => (
         Real-time analytics, personalized watchlists, and zero noise.
       </p>
 
-      <div className="pt-10 flex flex-col md:grow items-center justify-center gap-4">
+      <div className="pt-10 flex flex-col items-center justify-center gap-4">
         <button 
           onClick={signInWithGoogle}
           className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-full font-black uppercase tracking-widest text-xs transition-all hover:scale-105 shadow-lg shadow-blue-500/20"
@@ -33,6 +37,24 @@ const LandingPage = () => (
         </button>
       </div>
     </div>
+
+    <footer className="w-full py-10 mt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">
+        © 2026 LUME VIEW <span className="mx-2 text-white/10">|</span> PLATFORM WATERMARK
+      </div>
+      
+      <div className="flex items-center gap-8">
+        <Link to="/about" className="text-[10px] font-black text-slate-400 hover:text-blue-500 transition-colors uppercase tracking-widest">
+          About
+        </Link>
+        <Link to="/contact" className="text-[10px] font-black text-slate-400 hover:text-blue-500 transition-colors uppercase tracking-widest">
+          Contact
+        </Link>
+        <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
+          System Status: Online
+        </div>
+      </div>
+    </footer>
   </div>
 );
 
@@ -68,12 +90,25 @@ function App() {
       <div className="fixed inset-0 bg-slate-950 text-white font-sans overflow-y-auto overflow-x-hidden flex flex-col">
         
         <nav className="sticky top-0 left-0 right-0 flex justify-between items-center py-4 px-8 w-full backdrop-blur-xl z-[100] border-b border-white/5 bg-slate-950/90">
-          <Link to="/" className="text-xl font-black tracking-tighter uppercase italic">
+          <Link to="/landing" className="text-xl font-black uppercase tracking-widest no-underline">
             LUME <span className="text-blue-500">| VIEW</span>
           </Link>
           
           <div className="flex items-center gap-6">
+            <Link to="/landing" className="text-[10px] text-slate-400 hover:text-white transition uppercase font-black tracking-widest">Home</Link>
+
+            {user && (
+              <Link to="/" className="text-[10px] text-slate-400 hover:text-white transition uppercase font-black tracking-widest">Markets</Link>
+            )}
+
             <Link to="/about" className="text-[10px] text-slate-400 hover:text-white transition uppercase font-black tracking-widest">About</Link>
+            
+            <Link to="/contact" className="text-[10px] text-slate-400 hover:text-white transition uppercase font-black tracking-widest">Contact</Link>
+            
+            {user && (
+              <Link to="/favorites" className="text-[10px] text-slate-400 hover:text-white transition uppercase font-black tracking-widest">Watchlist</Link>
+            )}
+
             {user ? (
               <div className="flex items-center gap-4">
                 <span className="text-xs font-medium text-slate-400">
@@ -93,9 +128,19 @@ function App() {
               path="/" 
               element={user ? <MarketDashboard user={user} prefs={prefs} onStar={handleStar} /> : <LandingPage />} 
             />
+            <Route path="/landing" element={<LandingPage />} />
             <Route path="/coin/:id" element={<CoinAnalysis user={user} />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route 
+              path="/favorites" 
+              element={user ? <Favorites user={user} prefs={prefs} onStar={handleStar} /> : <LandingPage />} 
+            />
           </Routes>
         </main>
+
+        {/* Floating AI Insights Bot */}
+        <LumeAi />
       </div>
     </Router>
   );
