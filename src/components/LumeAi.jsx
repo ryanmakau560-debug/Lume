@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 const LumeAi = () => {
   const [isOpen, setIsOpen] = useState(false);
   
-  // CHANGED: The initial greeting is now more "human"
+  
   const [messages, setMessages] = useState([
     { role: 'ai', content: "Lume is live. Pulling the latest feeds now... what's on your radar?" }
   ]);
@@ -36,7 +36,7 @@ const LumeAi = () => {
         body: JSON.stringify({
           contents: [{
             parts: [{ 
-              // CHANGED: This prompt gives Lume its "soul" and wit
+              
               text: `System: You are LUME, a sharp, slightly witty, and highly intelligent AI analyst. 
               Don't be a robot. Be helpful but punchy. Use a mix of professional insight and casual confidence. 
               Keep asset names in UPPERCASE, but let the rest of your speech feel human.
