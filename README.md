@@ -1,6 +1,6 @@
 # LUME | Intelligent Business Terminal 🚀
 
-Lume is a high-end, responsive web dashboard developed for Adlum Spa & Barber. It combines sleek, modern aesthetics with Lume Insights, a custom AI-driven financial analyst designed to provide sharp, witty, and actionable business feedback.
+Lume is a high-end, responsive web dashboard developed for crypto analysts. It combines sleek, modern aesthetics with Lume Insights, a custom AI-driven financial analyst designed to provide sharp, witty, and actionable business feedback.
 
 ---
 
